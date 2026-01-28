@@ -331,11 +331,41 @@ const Home = () => {
     setEditCommentText(comment.comment);
     setEditCommentImage(null);
     setEditCommentImageName(comment.image_url ? "Existing image uploaded" : null);
+    setRemoveEditCommentImage(false);
   };
 
 
   const handleUpdateComment = async () => {
     if (!user || !editingComment) return;
+
+    const isTextEmpty = !editCommentText || editCommentText.trim() === "";
+    const willHaveImage = editCommentImage || (!removeEditCommentImage && editingComment.image_url);
+    const hasExistingImage = !!editingComment.image_url;
+    const hasNewImage = !!editCommentImage;
+
+    if (isTextEmpty && !willHaveImage) {
+      const { error } = await supabase
+      .from("comments")
+      .delete()
+      .eq("id", editingComment.id);
+
+      if (error) {
+        setCommentError(error.message);
+        return
+      }
+      
+      setComments((prev) =>
+        prev.filter((c) => c.id !== editingComment.id)
+    );
+
+    setEditingComment(null);
+    setEditCommentText("");
+    setEditCommentImage(null);
+    setEditCommentImageName(null);
+    setRemoveEditCommentImage(false);
+
+    return;
+    }
 
     let imageUrl = editingComment.image_url;
 
@@ -370,6 +400,7 @@ const Home = () => {
     setEditCommentText("");
     setEditCommentImage(null);
     setEditCommentImageName(null);
+    setRemoveEditCommentImage(false);
   };
 
   const handleDeleteComment = async (commentId: string) => {
@@ -644,6 +675,7 @@ const Home = () => {
                         const file = e.target.files?.[0] ?? null;
                         setEditCommentImage(file);
                         setEditCommentImageName(file?.name ?? null);
+                        setRemoveEditCommentImage(false);
                       }}
                     />
 

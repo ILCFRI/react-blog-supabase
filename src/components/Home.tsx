@@ -340,8 +340,6 @@ const Home = () => {
 
     const isTextEmpty = !editCommentText || editCommentText.trim() === "";
     const willHaveImage = editCommentImage || (!removeEditCommentImage && editingComment.image_url);
-    const hasExistingImage = !!editingComment.image_url;
-    const hasNewImage = !!editCommentImage;
 
     if (isTextEmpty && !willHaveImage) {
       const { error } = await supabase
